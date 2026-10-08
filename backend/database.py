@@ -9,13 +9,21 @@ from config import Config
 
 
 def get_db_connection():
+    database_url = os.getenv("DATABASE_URL")
+
+    if database_url:
+        return psycopg.connect(
+            database_url,
+            connect_timeout=5
+        )
+
     return psycopg.connect(
         host=Config.DB_HOST,
         port=Config.DB_PORT,
         dbname=Config.DB_NAME,
         user=Config.DB_USER,
         password=Config.DB_PASSWORD,
-        connect_timeout=5,
+        connect_timeout=5
     )
 
 

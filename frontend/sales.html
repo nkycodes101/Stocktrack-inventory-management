@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ShopTrack | Sales</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body class="dashboard-body">
+    <div class="workspace-strip">
+      <div class="workspace-picker">
+        <span class="workspace-label">Workspace:</span>
+        <select id="workspaceSelector" class="workspace-select" aria-label="Workspace selector">
+          <option value="Main Store">Main Store</option>
+          <option value="Branch 1">Branch 1</option>
+          <option value="Branch 2">Branch 2</option>
+        </select>
+      </div>
+    </div>
+    <div class="dashboard-app">
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <div class="logo-badge small">S</div>
+          <div>
+            <h2>ShopTrack</h2>
+          </div>
+        </div>
+
+        <nav class="sidebar-nav" aria-label="Main navigation">
+          <a href="dashboard.html" class="nav-item"><span class="nav-icon">▣</span>Dashboard</a>
+          <a href="products.html" class="nav-item"><span class="nav-icon">◫</span>Products</a>
+          <a href="suppliers.html" class="nav-item"><span class="nav-icon">◍</span>Suppliers</a>
+          <a href="inventory.html" class="nav-item"><span class="nav-icon">▤</span>Inventory</a>
+          <a href="sales.html" class="nav-item active"><span class="nav-icon">◌</span>Sales</a>
+          <a href="customers.html" class="nav-item"><span class="nav-icon">◎</span>Customers</a>
+          <a href="reports.html" class="nav-item"><span class="nav-icon">▥</span>Reports</a>
+          <a href="assistant.html" class="nav-item assistant-link"><span class="nav-icon">✦</span>Smart Assistant</a>
+          <a href="settings.html" class="nav-item"><span class="nav-icon">⚙</span>Settings</a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <a href="login.html" class="nav-item logout">Logout</a>
+        </div>
+      </aside>
+
+      <div class="main-panel">
+        <header class="topbar">
+          <div class="topbar-left">
+            <button type="button" class="menu-toggle" id="menuToggle" aria-label="Open menu">☰</button>
+            <h1>Sales</h1>
+          </div>
+
+          <div class="topbar-right">
+            <div class="search-box">
+              <span class="search-icon">⌕</span>
+              <input type="search" id="salesProductSearch" placeholder="Find product" aria-label="Find product" />
+            </div>
+
+            <button type="button" class="icon-button" aria-label="Notifications">🔔</button>
+
+            <div class="user-panel" aria-label="User account">
+              <div class="avatar">BO</div>
+              <div class="user-text">
+                <strong>Business Owner</strong>
+                <small>Admin</small>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <main class="content-area sales-layout">
+          <section class="panel sales-product-panel">
+            <div class="panel-header">
+              <h3>Product Search</h3>
+              <span class="panel-tag">Quick add</span>
+            </div>
+
+            <div id="productSearchResults" class="product-list"></div>
+          </section>
+
+          <section class="panel cart-panel">
+            <div class="panel-header">
+              <h3>Cart</h3>
+              <span class="panel-tag">Current sale</span>
+            </div>
+
+            <div class="table-wrap compact-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Product</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                    <th>SubTotal</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="cartTableBody"></tbody>
+              </table>
+            </div>
+
+            <div class="totals-box">
+              <div class="total-row">
+                <span>Total to Pay</span>
+                <strong id="totalAmount">₦0.00</strong>
+              </div>
+            </div>
+
+            <div id="salesMessage" class="form-message" aria-live="polite"></div>
+
+            <div class="sale-actions-shell">
+              <div class="sale-action-group pre-sale-actions">
+                <button type="button" class="secondary-btn" id="holdSaleBtn">Hold Sale</button>
+                <button type="button" class="primary-btn small-btn" id="completeSaleBtn">Complete Sale</button>
+              </div>
+
+              <div class="sale-action-group post-sale-actions">
+                <button type="button" class="secondary-btn" id="receiptBtn">View Receipt</button>
+                <button type="button" class="secondary-btn alt" id="newSaleBtn">New Sale</button>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel customer-panel">
+            <div class="panel-header">
+              <h3>Customer</h3>
+            </div>
+
+            <div class="field-group">
+              <label class="check-row">
+                <input type="checkbox" checked />
+                <span>Walk-in customer</span>
+              </label>
+            </div>
+
+            <div class="field-group">
+              <label for="customerName">Customer Name</label>
+              <input type="text" id="customerName" placeholder="Enter customer name" />
+            </div>
+
+            <div class="field-group">
+              <label for="customerPhone">Phone Number</label>
+              <input type="tel" id="customerPhone" placeholder="080*******" />
+            </div>
+
+            <button type="button" class="secondary-btn full-width" id="addCustomerBtn">Add / Save Customer</button>
+          </section>
+
+          <section class="panel payment-panel">
+            <div class="panel-header">
+              <h3>Payment</h3>
+            </div>
+
+            <div class="field-group">
+              <label for="paymentMethod">Payment Method</label>
+              <select id="paymentMethod">
+                <option value="Cash">Cash</option>
+                <option value="Transfer">Transfer</option>
+                <option value="POS">POS</option>
+                <option value="Credit/Owe">Credit/Owe</option>
+              </select>
+            </div>
+
+            <div class="field-group">
+              <label for="amountPaid">Amount Paid</label>
+              <input type="number" id="amountPaid" value="0" min="0" />
+            </div>
+
+            <div class="totals-box small">
+              <div class="total-row">
+                <span>Balance</span>
+                <strong id="balanceAmount">₦0.00</strong>
+              </div>
+            </div>
+
+            <div class="alert-box" id="lowStockAlert">
+              <strong>Low-stock warning:</strong>
+              <span>Orange Juice is below minimum stock.</span>
+            </div>
+          </section>
+
+          <section class="panel held-sales-panel" id="heldSalesBox">
+            <div class="panel-header">
+              <h3>Held Sales</h3>
+            </div>
+
+            <div class="held-sale-box">
+              <label for="heldSalesSelect">Held Sales</label>
+              <select id="heldSalesSelect">
+                <option value="">No held sales</option>
+              </select>
+              <button type="button" class="secondary-btn" id="restoreHeldSaleBtn">Restore</button>
+            </div>
+          </section>
+
+          <section class="panel sales-history-panel">
+            <div class="panel-header">
+              <h3>Sales History</h3>
+            </div>
+
+            <div class="table-wrap compact-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Receipt</th>
+                    <th>Customer</th>
+                    <th>Amount</th>
+                    <th>Payment</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody id="salesHistoryTableBody"></tbody>
+              </table>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <div class="modal hidden" id="receiptModal" aria-hidden="true">
+      <div class="modal-backdrop" data-close-receipt="true"></div>
+      <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="receiptModalTitle">
+        <div class="modal-header">
+          <h3 id="receiptModalTitle">Receipt</h3>
+          <button type="button" class="modal-close" aria-label="Close receipt" data-close-receipt="true">×</button>
+        </div>
+
+        <div id="receiptContent" class="receipt-content"></div>
+      </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="js/sales.js"></script>
+  </body>
+</html>

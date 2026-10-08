@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ShopTrack | Inventory</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body class="dashboard-body">
+    <div class="workspace-strip">
+      <div class="workspace-picker">
+        <span class="workspace-label">Workspace:</span>
+        <select id="workspaceSelector" class="workspace-select" aria-label="Workspace selector">
+          <option value="Main Store">Main Store</option>
+          <option value="Branch 1">Branch 1</option>
+          <option value="Branch 2">Branch 2</option>
+        </select>
+      </div>
+    </div>
+    <div class="dashboard-app">
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <div class="logo-badge small">S</div>
+          <div>
+            <h2>ShopTrack</h2>
+          </div>
+        </div>
+
+        <nav class="sidebar-nav" aria-label="Main navigation">
+          <a href="dashboard.html" class="nav-item"><span class="nav-icon">▣</span>Dashboard</a>
+          <a href="products.html" class="nav-item"><span class="nav-icon">◫</span>Products</a>
+          <a href="suppliers.html" class="nav-item"><span class="nav-icon">◍</span>Suppliers</a>
+          <a href="inventory.html" class="nav-item active"><span class="nav-icon">▤</span>Inventory</a>
+          <a href="sales.html" class="nav-item"><span class="nav-icon">◌</span>Sales</a>
+          <a href="customers.html" class="nav-item"><span class="nav-icon">◎</span>Customers</a>
+          <a href="reports.html" class="nav-item"><span class="nav-icon">▥</span>Reports</a>
+          <a href="assistant.html" class="nav-item assistant-link"><span class="nav-icon">✦</span>Smart Assistant</a>
+          <a href="settings.html" class="nav-item"><span class="nav-icon">⚙</span>Settings</a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <a href="login.html" class="nav-item logout">Logout</a>
+        </div>
+      </aside>
+
+      <div class="main-panel">
+        <header class="topbar">
+          <div class="topbar-left">
+            <button type="button" class="menu-toggle" id="menuToggle" aria-label="Open menu">☰</button>
+            <h1>Inventory</h1>
+          </div>
+
+          <div class="topbar-right">
+            <div class="search-box">
+              <span class="search-icon">⌕</span>
+              <input type="search" id="inventorySearch" placeholder="Search inventory" aria-label="Search inventory" />
+            </div>
+
+            <button type="button" class="icon-button" aria-label="Notifications">🔔</button>
+
+            <div class="user-panel" aria-label="User account">
+              <div class="avatar">BO</div>
+              <div class="user-text">
+                <strong>Business Owner</strong>
+                <small>Admin</small>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <main class="content-area">
+          <section class="toolbar-box">
+            <div class="toolbar-filters">
+              <select id="inventoryStatusFilter" aria-label="Filter by stock status">
+                <option value="All">All</option>
+                <option value="In Stock">In Stock</option>
+                <option value="Low Stock">Low Stock</option>
+                <option value="Expiring Soon">Expiring Soon</option>
+                <option value="Expired">Expired</option>
+              </select>
+              <button type="button" class="secondary-btn" id="addStockBtn">+ Add Stock</button>
+              <button type="button" class="secondary-btn alt" id="adjustStockBtn">Adjust Stock</button>
+            </div>
+          </section>
+
+          <section class="panel page-panel">
+            <div class="panel-header">
+              <h3>Batch Stock Levels</h3>
+              <span class="panel-tag">Live overview</span>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Product</th>
+                    <th>Variant</th>
+                    <th>SKU</th>
+                    <th>Supplier</th>
+                    <th>Batch</th>
+                    <th>Qty</th>
+                    <th>Date Received</th>
+                    <th>Expiry Date</th>
+                    <th>Expiry Status</th>
+                    <th>Stock Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="inventoryTableBody"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="panel page-panel">
+            <div class="panel-header">
+              <h3>Stock Movement History</h3>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Product</th>
+                    <th>Movement</th>
+                    <th>Quantity</th>
+                    <th>Reason</th>
+                  </tr>
+                </thead>
+                <tbody id="stockHistoryBody"></tbody>
+              </table>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <div class="modal hidden" id="inventoryModal" aria-hidden="true">
+      <div class="modal-backdrop" data-close-inventory="true"></div>
+      <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="inventoryModalTitle">
+        <div class="modal-header">
+          <h3 id="inventoryModalTitle">Add Stock</h3>
+          <button type="button" class="modal-close" aria-label="Close stock modal" data-close-inventory="true">×</button>
+        </div>
+
+        <form id="inventoryForm" class="product-form">
+          <div class="form-grid">
+            <div class="field-group">
+              <label for="inventoryProduct">Product</label>
+              <select id="inventoryProduct" name="inventoryProduct" required></select>
+            </div>
+
+            <div class="field-group">
+              <label for="inventoryVariant">Variant</label>
+              <input type="text" id="inventoryVariant" name="inventoryVariant" readonly />
+            </div>
+
+            <div class="field-group">
+              <label for="inventorySku">SKU</label>
+              <input type="text" id="inventorySku" name="inventorySku" readonly />
+            </div>
+
+            <div class="field-group">
+              <label for="inventorySupplier">Supplier</label>
+              <select id="inventorySupplier" name="inventorySupplier" required></select>
+            </div>
+
+            <div class="field-group">
+              <label for="inventoryBatchNumber">Batch Number</label>
+              <input type="text" id="inventoryBatchNumber" name="inventoryBatchNumber" required />
+            </div>
+
+            <div class="field-group">
+              <label id="inventoryQuantityLabel" for="inventoryQuantity">Quantity to Add</label>
+              <input type="number" id="inventoryQuantity" name="inventoryQuantity" min="1" step="1" required />
+            </div>
+
+            <div class="field-group">
+              <label for="inventoryDateReceived">Date Received</label>
+              <input type="date" id="inventoryDateReceived" name="inventoryDateReceived" required />
+            </div>
+
+            <div class="field-group">
+              <label for="inventoryExpiryDate">Expiry Date</label>
+              <input type="date" id="inventoryExpiryDate" name="inventoryExpiryDate" required />
+            </div>
+
+            <div class="field-group full-span" id="inventoryBatchField" hidden>
+              <label for="inventoryBatch">Existing Batch</label>
+              <select id="inventoryBatch" name="inventoryBatch"></select>
+            </div>
+
+            <div class="field-group full-span" id="inventoryReasonField" hidden>
+              <label for="inventoryReason">Reason</label>
+              <select id="inventoryReason" name="inventoryReason">
+                <option value="Damaged item">Damaged item</option>
+                <option value="Returned stock">Returned stock</option>
+                <option value="Stock count correction">Stock count correction</option>
+                <option value="Written off">Written off</option>
+                <option value="Manual adjustment">Manual adjustment</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="inventoryFormMessage" class="form-message" aria-live="polite"></div>
+
+          <div class="modal-actions">
+            <button type="button" class="secondary-btn" data-close-inventory="true">Cancel</button>
+            <button type="submit" class="primary-btn small-btn" id="inventorySaveBtn">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="js/inventory.js"></script>
+  </body>
+</html>

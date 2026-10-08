@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ShopTrack | Suppliers</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body class="dashboard-body">
+    <div class="workspace-strip">
+      <div class="workspace-picker">
+        <span class="workspace-label">Workspace:</span>
+        <select id="workspaceSelector" class="workspace-select" aria-label="Workspace selector">
+          <option value="Main Store">Main Store</option>
+          <option value="Branch 1">Branch 1</option>
+          <option value="Branch 2">Branch 2</option>
+        </select>
+      </div>
+    </div>
+    <div class="dashboard-app">
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <div class="logo-badge small">S</div>
+          <div>
+            <h2>ShopTrack</h2>
+          </div>
+        </div>
+
+        <nav class="sidebar-nav" aria-label="Main navigation">
+          <a href="dashboard.html" class="nav-item"><span class="nav-icon">▣</span>Dashboard</a>
+          <a href="products.html" class="nav-item"><span class="nav-icon">◫</span>Products</a>
+          <a href="suppliers.html" class="nav-item active"><span class="nav-icon">◍</span>Suppliers</a>
+          <a href="inventory.html" class="nav-item"><span class="nav-icon">▤</span>Inventory</a>
+          <a href="sales.html" class="nav-item"><span class="nav-icon">◌</span>Sales</a>
+          <a href="customers.html" class="nav-item"><span class="nav-icon">◎</span>Customers</a>
+          <a href="reports.html" class="nav-item"><span class="nav-icon">▥</span>Reports</a>
+          <a href="assistant.html" class="nav-item assistant-link"><span class="nav-icon">✦</span>Smart Assistant</a>
+          <a href="settings.html" class="nav-item"><span class="nav-icon">⚙</span>Settings</a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <a href="login.html" class="nav-item logout">Logout</a>
+        </div>
+      </aside>
+
+      <div class="main-panel">
+        <header class="topbar">
+          <div class="topbar-left">
+            <button type="button" class="menu-toggle" id="menuToggle" aria-label="Open menu">☰</button>
+            <h1>Suppliers</h1>
+          </div>
+
+          <div class="topbar-right">
+            <div class="search-box">
+              <span class="search-icon">⌕</span>
+              <input type="search" id="supplierSearch" placeholder="Search suppliers" aria-label="Search suppliers" />
+            </div>
+
+            <button type="button" class="icon-button" aria-label="Notifications">🔔</button>
+
+            <div class="user-panel" aria-label="User account">
+              <div class="avatar">BO</div>
+              <div class="user-text">
+                <strong>Business Owner</strong>
+                <small>Admin</small>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <main class="content-area">
+          <section class="toolbar-box">
+            <div class="toolbar-filters">
+              <input type="text" id="supplierNameFilter" placeholder="Supplier name" aria-label="Supplier name" />
+            </div>
+            <button type="button" class="primary-btn small-btn" id="openSupplierModalBtn">+ Add Supplier</button>
+          </section>
+
+          <section class="panel page-panel">
+            <div class="panel-header">
+              <h3>Supplier Directory</h3>
+              <span class="panel-tag" id="suppliersCountLabel">0 items</span>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Contact Person</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>Address</th>
+                    <th>Notes</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="suppliersTableBody"></tbody>
+              </table>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <div class="modal hidden" id="supplierModal" aria-hidden="true">
+      <div class="modal-backdrop" data-close-supplier="true"></div>
+      <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="supplierModalTitle">
+        <div class="modal-header">
+          <h3 id="supplierModalTitle">Add Supplier</h3>
+          <button type="button" class="modal-close" aria-label="Close supplier modal" data-close-supplier="true">×</button>
+        </div>
+
+        <form id="supplierForm" class="product-form">
+          <div class="form-grid">
+            <div class="field-group">
+              <label for="supplierName">Supplier Name</label>
+              <input type="text" id="supplierName" name="supplierName" required />
+            </div>
+
+            <div class="field-group">
+              <label for="supplierContactPerson">Contact Person</label>
+              <input type="text" id="supplierContactPerson" name="supplierContactPerson" required />
+            </div>
+
+            <div class="field-group">
+              <label for="supplierPhone">Phone Number</label>
+              <input type="tel" id="supplierPhone" name="supplierPhone" required />
+            </div>
+
+            <div class="field-group">
+              <label for="supplierEmail">Email</label>
+              <input type="email" id="supplierEmail" name="supplierEmail" />
+            </div>
+
+            <div class="field-group full-span">
+              <label for="supplierAddress">Address</label>
+              <input type="text" id="supplierAddress" name="supplierAddress" />
+            </div>
+
+            <div class="field-group full-span">
+              <label for="supplierNotes">Notes</label>
+              <textarea id="supplierNotes" name="supplierNotes" rows="4" placeholder="Supplier notes, payment terms, delivery notes..."></textarea>
+            </div>
+          </div>
+
+          <div id="supplierFormMessage" class="form-message" aria-live="polite"></div>
+
+          <div class="modal-actions">
+            <button type="button" class="secondary-btn" data-close-supplier="true">Cancel</button>
+            <button type="submit" class="primary-btn small-btn">Save Supplier</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="js/suppliers.js"></script>
+  </body>
+</html>

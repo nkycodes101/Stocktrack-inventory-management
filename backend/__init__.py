@@ -1,0 +1,1 @@
+"""ShopTrack backend package."""

@@ -28,7 +28,9 @@ def add_cors_headers(response):
 @app.route('/api/<path:path>', methods=['OPTIONS'])
 def api_options(path):
     return '', 204
-
+@app.route("/health")
+def health():
+    return {"status": "ok"}, 200
 
 def ensure_products_table():
     with get_db_connection() as connection:

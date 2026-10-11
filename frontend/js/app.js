@@ -1,6 +1,6 @@
 // Shared frontend behavior for the ShopTrack dashboard.
 window.ShopTrackApi = {
-  baseUrl: 'http://127.0.0.1:5000',
+  baseUrl: 'https://stocktrack-inventory-management.onrender.com',
 
   async request(path, options = {}) {
     const url = path.startsWith('http') ? path : `${this.baseUrl}${path}`;

@@ -861,17 +861,33 @@ def build_dashboard_summary():
     }
 
 
-def build_reports_data(period='all', report_type='summary', category=None):
+def build_reports_data(period='all', report_type='summary', category=None, from_date=None, to_date=None):
     allowed_periods = {'today', 'week', 'month', 'quarter', 'year', 'all'}
     chosen_period = str(period or 'all').lower()
     if chosen_period not in allowed_periods:
         chosen_period = 'all'
 
+    where_conditions = []
+    where_params = []
+
+    if from_date:
+        where_conditions.append("s.sale_date >= %s")
+        where_params.append(from_date)
+    if to_date:
+        where_conditions.append("s.sale_date <= %s")
+        where_params.append(to_date)
+
+    if not where_conditions and chosen_period != 'all':
+        sales_interval = get_days_for_period(chosen_period)
+        where_conditions.append("s.sale_date >= NOW() - %s::interval")
+        where_params.append(sales_interval)
+    elif not where_conditions:
+        where_conditions.append("TRUE")
+
+    where_clause = " AND ".join(where_conditions)
+
     with get_db_connection() as connection:
         with connection.cursor() as cursor:
-            sales_interval = get_days_for_period(chosen_period)
-            where_clause = "s.sale_date >= NOW() - %s::interval" if chosen_period != 'all' else "TRUE"
-
             cursor.execute(
                 f"""
                 SELECT DATE(s.sale_date) AS sale_day,
@@ -881,11 +897,12 @@ def build_reports_data(period='all', report_type='summary', category=None):
                 GROUP BY DATE(s.sale_date)
                 ORDER BY DATE(s.sale_date) ASC
                 """,
-                (sales_interval,) if chosen_period != 'all' else (),
+                tuple(where_params) if where_params else (),
             )
             daily_sales = {row[0]: float(row[1] or 0) for row in cursor.fetchall()}
 
-            cogs_where = "s.sale_date >= NOW() - %s::interval" if chosen_period != 'all' else "TRUE"
+            cogs_where = where_clause
+            cogs_params = where_params
             cursor.execute(
                 f"""
                 SELECT DATE(s.sale_date) AS sale_day,
@@ -897,7 +914,7 @@ def build_reports_data(period='all', report_type='summary', category=None):
                 GROUP BY DATE(s.sale_date)
                 ORDER BY DATE(s.sale_date) ASC
                 """,
-                (sales_interval,) if chosen_period != 'all' else (),
+                tuple(cogs_params) if cogs_params else (),
             )
             sales_rows = [(day, daily_sales.get(day, 0), 0, daily_sales.get(day, 0)) for day in sorted(daily_sales)]
             cogs_by_day = {row[0]: float(row[1] or 0) for row in cursor.fetchall()}
@@ -921,6 +938,23 @@ def build_reports_data(period='all', report_type='summary', category=None):
                 """
             )
             stock_rows = cursor.fetchall()
+
+            cursor.execute(
+                """
+                SELECT p.name,
+                       COALESCE(SUM(si.quantity), 0) AS total_quantity,
+                       COALESCE(SUM(si.subtotal), 0) AS total_revenue
+                FROM sale_items si
+                JOIN sales s ON s.sale_id = si.sale_id
+                JOIN products p ON p.product_id = si.product_id
+                WHERE {where_clause} AND s.status = 'completed'
+                GROUP BY p.name
+                ORDER BY total_quantity DESC
+                LIMIT 5
+                """.format(where_clause=where_clause),
+                tuple(where_params) if where_params else (),
+            )
+            best_selling_rows = cursor.fetchall()
 
             cursor.execute(
                 """

@@ -13,6 +13,6 @@ class Config:
     DB_NAME = os.getenv('DB_NAME', 'shoptrack')
     DB_USER = os.getenv('DB_USER', 'shoptrack')
     DB_PASSWORD = os.getenv('DB_PASSWORD', 'shoptrack')
-    DATABASE_URL = (
+    DATABASE_URL =os.getenv ('DATABASE_URL') or (
         f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
     )

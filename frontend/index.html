@@ -3,11 +3,254 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ShopTrack</title>
+    <meta name="description" content="ShopTrack - Inventory Management & Sales Tracking for Modern Businesses" />
+    <title>ShopTrack | Inventory Management & Sales</title>
+    <link rel="stylesheet" href="css/style.css" />
   </head>
-  <body>
-    <script>
-      window.location.replace('login.html');
-    </script>
+  <body class="homepage">
+    <header class="navbar" role="banner">
+      <div class="navbar-inner">
+        <a href="#" class="navbar-brand" aria-label="ShopTrack Home">
+          <div class="navbar-logo" aria-hidden="true">ST</div>
+          <div class="navbar-text">
+            <span class="navbar-title">ShopTrack</span>
+            <span class="navbar-subtitle">Inventory Management & Sales</span>
+          </div>
+        </a>
+
+<nav class="navbar-nav" id="navbarNav" aria-label="Main navigation">
+          <a href="#home" class="nav-link">Home</a>
+          <a href="#about" class="nav-link">About Us</a>
+          <a href="#features" class="nav-link">Services</a>
+          <a href="#how-it-works" class="nav-link">How It Works</a>
+        </nav>
+
+        <div class="navbar-actions">
+          <a href="login.html" class="btn btn-outline">Log In</a>
+          <a href="login.html" class="btn btn-primary">Get Started</a>
+          <button class="navbar-toggle" id="navbarToggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="navbarNav">
+            ☰
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section id="home" class="hero" aria-labelledby="hero-heading">
+        <div class="hero-inner">
+          <div class="hero-content">
+            <span class="hero-badge">New Release v2.0</span>
+            <h1 id="hero-heading">
+              Manage Your Inventory. Track Sales.<br />
+              <span class="highlight">Grow Your Business.</span>
+            </h1>
+            <p>
+              ShopTrack gives business owners real-time insights into inventory, sales, stock levels and business performance, helping them make smarter decisions.
+            </p>
+            <div class="hero-buttons">
+              <a href="login.html" class="btn btn-primary btn-lg">Get Started</a>
+              <a href="#features" class="btn btn-outline btn-lg">Explore Features</a>
+            </div>
+          </div>
+          <div class="hero-image">
+            <img src="assets/images/business _owner.png.png" alt="Business owner managing inventory with ShopTrack dashboard" loading="eager" />
+          </div>
+        </div>
+      </section>
+
+      <section id="about" class="section section-alt" aria-labelledby="about-heading">
+        <div class="section-header">
+          <span class="section-badge">About ShopTrack</span>
+          <h2 id="about-heading">One Platform to Manage It All</h2>
+          <p>Replace scattered records with a simple, powerful solution built for growing businesses.</p>
+        </div>
+        <div class="about-content">
+          <p>
+            ShopTrack helps businesses manage products, inventory, sales and operations from one platform. 
+            Whether you run a single store or multiple branches, you get tools to stay organized, avoid stockouts, 
+            and understand performance at a glance.
+          </p>
+          <p>
+            Built with modern technology, ShopTrack combines product management, inventory tracking, sales recording, 
+            expiry alerts, detailed reports, and a smart business assistant into one seamless experience.
+          </p>
+        </div>
+      </section>
+
+      <section id="features" class="section" aria-labelledby="features-heading">
+        <div class="section-header">
+          <span class="section-badge">Key Features</span>
+          <h2 id="features-heading">Everything You Need to Succeed</h2>
+          <p>Powerful features designed to simplify your daily operations and drive growth.</p>
+        </div>
+        <div class="features-grid">
+          <article class="feature-card">
+            <div class="feature-icon" aria-hidden="true">📦</div>
+            <h3>Product Management</h3>
+            <p>Add, edit, and organize products with variants, categories, SKUs, and multiple price tiers (cost, wholesale, retail).</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon" aria-hidden="true">📊</div>
+            <h3>Inventory Tracking</h3>
+            <p>Real-time stock levels, stock-in/out history, low-stock thresholds, and automatic status updates (In Stock, Low Stock, Out of Stock).</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon" aria-hidden="true">💰</div>
+            <h3>Sales Management</h3>
+            <p>Record sales with multiple payment methods, customer management, cart system, and instant inventory deduction.</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon" aria-hidden="true">⚠️</div>
+            <h3>Low Stock & Expiry Alerts</h3>
+            <p>Automatic alerts for low-stock items and expiring products. Never miss a restock or waste inventory again.</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon" aria-hidden="true">📈</div>
+            <h3>Reports & Analytics</h3>
+            <p>Sales trends, revenue, profit estimates, inventory value, best-selling products, and customizable date filters.</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon" aria-hidden="true">🤖</div>
+            <h3>Smart Business Assistant</h3>
+            <p>AI-powered insights for restocking recommendations, sales forecasts, and business decision support.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="how-it-works" class="steps-section section" aria-labelledby="steps-heading">
+        <div class="section-header section">
+          <span class="section-badge">How It Works</span>
+          <h2 id="steps-heading">Get Running in 5 Simple Steps</h2>
+          <p>From setup to insights, ShopTrack guides you through every stage.</p>
+        </div>
+        <div class="steps-grid">
+          <article class="step-card">
+            <div class="step-number" aria-hidden="true">01</div>
+            <h3>Add Products</h3>
+            <p>Enter product details, prices, variants, and opening stock quantities.</p>
+          </article>
+          <article class="step-card">
+            <div class="step-number" aria-hidden="true">02</div>
+            <h3>Record Sales</h3>
+            <p>Process purchases, accept payments, and automatically update stock.</p>
+          </article>
+          <article class="step-card">
+            <div class="step-number" aria-hidden="true">03</div>
+            <h3>Monitor Inventory</h3>
+            <p>Track available stock, low-stock alerts, and expiry dates in real time.</p>
+          </article>
+          <article class="step-card">
+            <div class="step-number" aria-hidden="true">04</div>
+            <h3>View Reports</h3>
+            <p>Review sales trends, revenue, profit margins, and best-selling products.</p>
+          </article>
+          <article class="step-card">
+            <div class="step-number" aria-hidden="true">05</div>
+            <h3>Make Smart Decisions</h3>
+            <p>Use reports and the Smart Assistant to guide restocking and growth.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="cta-section section" aria-labelledby="cta-heading">
+        <div class="section-header section">
+          <h2 id="cta-heading">Ready to Take Control of Your Business?</h2>
+          <p>Start managing your inventory and sales smarter with ShopTrack.</p>
+        </div>
+        <a href="login.html" class="btn btn-primary btn-lg">Get Started</a>
+      </section>
+    </main>
+
+    <footer class="footer" role="contentinfo">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <a href="#" class="navbar-brand" aria-label="ShopTrack Home">
+            <div class="navbar-logo" aria-hidden="true">ST</div>
+            <div class="navbar-text">
+              <span class="navbar-title">ShopTrack</span>
+              <span class="navbar-subtitle">Inventory Management & Sales</span>
+            </div>
+          </a>
+          <p>Helping business owners replace scattered records with one simple place to manage products, inventory and sales.</p>
+        </div>
+        <nav class="footer-links" aria-label="Product links">
+          <h4>Product</h4>
+          <ul>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#about">About Us</a></li>
+            <li><a href="login.html">Get Started</a></li>
+          </ul>
+        </nav>
+        <nav class="footer-links" aria-label="Company links">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="login.html">Dashboard</a></li>
+            <li><a href="#about">Our Story</a></li>
+            <li><a href="#features">Services</a></li>
+          </ul>
+        </nav>
+        <nav class="footer-links" aria-label="Legal links">
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Terms of Service</a></li>
+          </ul>
+        </nav>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 ShopTrack. All Rights Reserved.</span>
+        <span>Built with care for business owners everywhere.</span>
+      </div>
+    </footer>
   </body>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const toggle = document.getElementById('navbarToggle');
+      const nav = document.getElementById('navbarNav');
+      
+      if (toggle && nav) {
+        toggle.addEventListener('click', () => {
+          const isOpen = nav.classList.toggle('open');
+          toggle.setAttribute('aria-expanded', isOpen);
+          toggle.textContent = isOpen ? '✕' : '☰';
+        });
+
+        nav.querySelectorAll('.nav-link').forEach(link => {
+          link.addEventListener('click', () => {
+            nav.classList.remove('open');
+            toggle.setAttribute('aria-expanded', 'false');
+            toggle.textContent = '☰';
+          });
+        });
+
+        document.addEventListener('click', (e) => {
+          if (!toggle.contains(e.target) && !nav.contains(e.target)) {
+            nav.classList.remove('open');
+            toggle.setAttribute('aria-expanded', 'false');
+            toggle.textContent = '☰';
+          }
+        });
+      }
+
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+          const targetId = this.getAttribute('href');
+          if (targetId === '#') return;
+          
+          const target = document.querySelector(targetId);
+          if (target) {
+            e.preventDefault();
+            const headerOffset = 80;
+            const elementPosition = target.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+            
+            window.scrollTo({
+              top: offsetPosition,
+              behavior: 'smooth'
+            });
+          }
+        });
+      });
+    });
+  </script>
 </html>

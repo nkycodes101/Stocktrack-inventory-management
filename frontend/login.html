@@ -6,77 +6,112 @@
     <title>ShopTrack | Login</title>
     <link rel="stylesheet" href="css/style.css" />
   </head>
-  <body class="auth-page">
-    <div class="workspace-strip login-workspace-strip">
-      <div class="workspace-picker">
-        <span class="workspace-label">Workspace:</span>
-        <select id="workspaceSelector" class="workspace-select" aria-label="Workspace selector">
-          <option value="Main Store">Main Store</option>
-          <option value="Branch 1">Branch 1</option>
-          <option value="Branch 2">Branch 2</option>
-        </select>
-      </div>
-    </div>
-    <main class="login-shell">
-      <section class="login-card" aria-labelledby="login-title">
-        <div class="brand-block">
-          <div class="logo-badge" aria-hidden="true">S</div>
-          <h1 id="login-title">ShopTrack</h1>
-          <p>Manage your business smarter</p>
-        </div>
-
-        <form id="loginForm" novalidate>
-          <div class="field-group">
-            <label for="email">Email address</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              placeholder="you@business.com"
-              autocomplete="email"
-            />
-          </div>
-
-          <div class="field-group">
-            <label for="password">Password</label>
-            <div class="password-wrapper">
-              <input
-                type="password"
-                id="password"
-                name="password"
-                placeholder="Enter your password"
-                autocomplete="current-password"
-              />
-              <button
-                type="button"
-                class="toggle-password"
-                id="togglePassword"
-                aria-label="Show password"
-              >
-                Show
-              </button>
+  <body class="login-page">
+    <div class="login-split">
+      <aside class="login-brand" aria-hidden="true">
+        <div class="login-brand-content">
+          <div class="login-brand-logo">ST</div>
+          <h1>Welcome Back to<br /><span>ShopTrack</span></h1>
+          <p>Manage inventory, track sales, and grow your business with real-time insights and smart analytics.</p>
+          <div class="login-illustration">
+            <div class="illustration-card">
+              <span class="illustration-icon">📦</span>
+              <strong>Products</strong>
+              <span>Manage catalog</span>
+            </div>
+            <div class="illustration-card">
+              <span class="illustration-icon">📊</span>
+              <strong>Inventory</strong>
+              <span>Real-time stock</span>
+            </div>
+            <div class="illustration-card">
+              <span class="illustration-icon">💰</span>
+              <strong>Sales</strong>
+              <span>Track revenue</span>
+            </div>
+            <div class="illustration-card">
+              <span class="illustration-icon">📈</span>
+              <strong>Reports</strong>
+              <span>Smart insights</span>
             </div>
           </div>
+        </div>
+      </aside>
 
-          <div class="form-row">
-            <label class="checkbox-row" for="rememberMe">
-              <input type="checkbox" id="rememberMe" name="rememberMe" />
-              <span>Remember me</span>
-            </label>
+      <main class="login-form-side">
+        <div class="workspace-strip login-workspace-strip">
+          <div class="workspace-picker">
+            <span class="workspace-label">Workspace:</span>
+            <select id="workspaceSelector" class="workspace-select" aria-label="Workspace selector">
+              <option value="Main Store">Main Store</option>
+              <option value="Branch 1">Branch 1</option>
+              <option value="Branch 2">Branch 2</option>
+            </select>
+          </div>
+        </div>
 
-            <a href="#" class="text-link">Forgot Password?</a>
+        <section class="login-form-shell" aria-labelledby="login-title">
+          <div class="login-form-header">
+            <div class="logo-badge" aria-hidden="true">ST</div>
+            <h1 id="login-title">Sign In</h1>
+            <p>Enter your credentials to access your dashboard</p>
           </div>
 
-          <div id="formMessage" class="form-message" aria-live="polite"></div>
+          <form id="loginForm" novalidate>
+            <div class="field-group">
+              <label for="email">Email address</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="you@business.com"
+                autocomplete="email"
+                aria-describedby="emailError"
+              />
+            </div>
 
-          <button type="submit" class="primary-btn">Login</button>
+            <div class="field-group">
+              <label for="password">Password</label>
+              <div class="password-wrapper">
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  placeholder="Enter your password"
+                  autocomplete="current-password"
+                  aria-describedby="passwordError"
+                />
+                <button
+                  type="button"
+                  class="toggle-password"
+                  id="togglePassword"
+                  aria-label="Show password"
+                >
+                  Show
+                </button>
+              </div>
+            </div>
 
-          <p class="signup-text">
-            New business? <a href="#" class="text-link">Create Account</a>
-          </p>
-        </form>
-      </section>
-    </main>
+            <div class="form-row">
+              <label class="checkbox-row" for="rememberMe">
+                <input type="checkbox" id="rememberMe" name="rememberMe" />
+                <span>Remember me</span>
+              </label>
+
+              <a href="#" class="text-link">Forgot Password?</a>
+            </div>
+
+            <div id="formMessage" class="form-message" aria-live="polite"></div>
+
+            <button type="submit" class="primary-btn">Login</button>
+
+            <p class="signup-text">
+              New business? <a href="#" class="text-link">Create Account</a>
+            </p>
+          </form>
+        </section>
+      </main>
+    </div>
 
     <script src="js/auth.js"></script>
   </body>

@@ -426,6 +426,22 @@ def ensure_sales_tables():
                 )
                 """
             )
+            cursor.execute(
+                """
+                CREATE TABLE IF NOT EXISTS stock_movements (
+                    movement_id SERIAL PRIMARY KEY,
+                    product_id INTEGER NOT NULL REFERENCES products(product_id) ON DELETE RESTRICT,
+                    inventory_id INTEGER REFERENCES inventory(inventory_id) ON DELETE SET NULL,
+                    movement_type VARCHAR(20) NOT NULL CHECK (movement_type IN ('STOCK_IN', 'STOCK_OUT', 'ADJUSTMENT')),
+                    quantity INTEGER NOT NULL,
+                    balance_after INTEGER NOT NULL,
+                    reason VARCHAR(255),
+                    reference_type VARCHAR(50),
+                    reference_id INTEGER,
+                    created_at TIMESTAMPTZ DEFAULT NOW()
+                )
+                """
+            )
             connection.commit()
 
 
@@ -1046,6 +1062,14 @@ def build_reports_data(period='all', report_type='summary', category=None, from_
     else:
         pnl_summary = {'revenue': 0, 'costOfGoods': 0, 'profit': 0}
 
+    best_selling = []
+    for row in best_selling_rows:
+        best_selling.append({
+            'productName': row[0],
+            'quantitySold': int(row[1] or 0),
+            'revenue': float(row[2] or 0),
+        })
+
     response = {
         'type': report_type,
         'period': chosen_period,
@@ -1062,6 +1086,7 @@ def build_reports_data(period='all', report_type='summary', category=None, from_
         'data': date_series,
         'stockData': stock_data,
         'profitLoss': pnl_summary,
+        'bestSelling': best_selling,
     }
     return response
 
@@ -1523,6 +1548,10 @@ def update_inventory_item(inventory_id):
         new_stock_in = existing.get('stock_in', 0) + stock_in_value
         new_stock_out = existing.get('stock_out', 0) + stock_out_value
         product_status = get_inventory_status(quantity, low_stock_level)
+        
+        # Store old quantity for movement tracking
+        old_quantity = existing.get('stock_quantity', 0)
+        product_id = existing.get('product_id')
 
         with get_db_connection() as connection:
             with connection.cursor() as cursor:
@@ -1549,6 +1578,49 @@ def update_inventory_item(inventory_id):
                 )
                 row = cursor.fetchone()
                 connection.commit()
+        
+        # Record stock movements after successful update
+        if product_id:
+            # Record STOCK_IN if stock was added
+            if stock_in_value > 0:
+                record_stock_movement(
+                    product_id=product_id,
+                    inventory_id=inventory_id,
+                    movement_type='STOCK_IN',
+                    quantity=stock_in_value,
+                    balance_after=quantity,
+                    reason='Restock',
+                    reference_type='restock',
+                    reference_id=None,
+                )
+            # Record STOCK_OUT if stock was removed (not from sale)
+            if stock_out_value > 0:
+                record_stock_movement(
+                    product_id=product_id,
+                    inventory_id=inventory_id,
+                    movement_type='STOCK_OUT',
+                    quantity=stock_out_value,
+                    balance_after=quantity,
+                    reason='Manual stock out',
+                    reference_type='adjustment',
+                    reference_id=None,
+                )
+            # Record ADJUSTMENT if stock_quantity was directly set (and differs from old)
+            if 'stockQuantity' in payload or 'stock_quantity' in payload:
+                if quantity != old_quantity:
+                    delta = quantity - old_quantity
+                    movement_type = 'STOCK_IN' if delta > 0 else 'STOCK_OUT'
+                    record_stock_movement(
+                        product_id=product_id,
+                        inventory_id=inventory_id,
+                        movement_type=movement_type,
+                        quantity=abs(delta),
+                        balance_after=quantity,
+                        reason='Stock count correction',
+                        reference_type='adjustment',
+                        reference_id=None,
+                    )
+
     except ValueError as exc:
         return jsonify({'error': str(exc)}), 400
 
@@ -1566,6 +1638,95 @@ def update_inventory_item(inventory_id):
             row = cursor.fetchone()
 
     return jsonify(to_inventory_dict(row))
+
+
+def record_stock_movement(product_id, inventory_id, movement_type, quantity, balance_after, reason=None, reference_type=None, reference_id=None):
+    """Record a stock movement in the stock_movements table."""
+    try:
+        with get_db_connection() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    INSERT INTO stock_movements (
+                        product_id, inventory_id, movement_type, quantity,
+                        balance_after, reason, reference_type, reference_id
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                    RETURNING movement_id
+                    """,
+                    (product_id, inventory_id, movement_type, quantity, balance_after, reason, reference_type, reference_id),
+                )
+                connection.commit()
+    except Exception as exc:
+        # Log error but don't fail the main operation
+        print(f"Failed to record stock movement: {exc}")
+
+
+@app.get('/api/stock-movements')
+def get_stock_movements():
+    product_id = request.args.get('product_id', type=int)
+    limit = request.args.get('limit', default=100, type=int)
+    offset = request.args.get('offset', default=0, type=int)
+    
+    with get_db_connection() as connection:
+        with connection.cursor() as cursor:
+            if product_id:
+                cursor.execute(
+                    """
+                    SELECT sm.*, p.name AS product_name, p.sku
+                    FROM stock_movements sm
+                    JOIN products p ON p.product_id = sm.product_id
+                    WHERE sm.product_id = %s
+                    ORDER BY sm.created_at DESC, sm.movement_id DESC
+                    LIMIT %s OFFSET %s
+                    """,
+                    (product_id, limit, offset),
+                )
+            else:
+                cursor.execute(
+                    """
+                    SELECT sm.*, p.name AS product_name, p.sku
+                    FROM stock_movements sm
+                    JOIN products p ON p.product_id = sm.product_id
+                    ORDER BY sm.created_at DESC, sm.movement_id DESC
+                    LIMIT %s OFFSET %s
+                    """,
+                    (limit, offset),
+                )
+            rows = cursor.fetchall()
+            
+            # Get total count
+            if product_id:
+                cursor.execute(
+                    "SELECT COUNT(*) FROM stock_movements WHERE product_id = %s",
+                    (product_id,),
+                )
+            else:
+                cursor.execute("SELECT COUNT(*) FROM stock_movements")
+            total = cursor.fetchone()[0]
+    
+    movements = []
+    for row in rows:
+        movements.append({
+            'movementId': row[0],
+            'productId': row[1],
+            'inventoryId': row[2],
+            'movementType': row[3],
+            'quantity': row[4],
+            'balanceAfter': row[5],
+            'reason': row[6],
+            'referenceType': row[7],
+            'referenceId': row[8],
+            'createdAt': row[9].isoformat() if row[9] else None,
+            'productName': row[10],
+            'sku': row[11],
+        })
+    
+    return jsonify({
+        'movements': movements,
+        'total': total,
+        'limit': limit,
+        'offset': offset,
+    })
 
 
 @app.get('/api/sales')
@@ -1791,6 +1952,18 @@ def create_sale():
                         WHERE inventory_id = %s
                         """,
                         (new_quantity, item['quantity'], new_status, item['inventory_id']),
+                    )
+                    
+                    # Record stock movement for the sale
+                    record_stock_movement(
+                        product_id=item['product_id'],
+                        inventory_id=item['inventory_id'],
+                        movement_type='STOCK_OUT',
+                        quantity=item['quantity'],
+                        balance_after=new_quantity,
+                        reason=f'Sale {sale_number}',
+                        reference_type='sale',
+                        reference_id=sale_id,
                     )
 
                 cursor.execute(
@@ -2122,7 +2295,9 @@ def reports_summary():
     period = request.args.get('period', 'all')
     report_type = request.args.get('type', 'summary')
     category = request.args.get('category')
-    return jsonify(build_reports_data(period=period, report_type=report_type, category=category))
+    from_date = request.args.get('from_date')
+    to_date = request.args.get('to_date')
+    return jsonify(build_reports_data(period=period, report_type=report_type, category=category, from_date=from_date, to_date=to_date))
 
 
 @app.get('/api/settings')

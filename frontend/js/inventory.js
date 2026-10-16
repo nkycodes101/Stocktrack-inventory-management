@@ -2,6 +2,7 @@
 let suppliers = [];
 let products = [];
 let inventoryItems = [];
+let stockMovements = [];
 let activeInventoryMode = 'add';
 
 function getInventoryStatus(item) {
@@ -44,6 +45,7 @@ async function loadInventoryData() {
     populateProductOptions();
     populateSupplierOptions();
     renderInventoryTable();
+    await renderInventoryHistory();
   } catch (error) {
     console.error(error);
     const tableBody = document.getElementById('inventoryTableBody');
@@ -53,26 +55,41 @@ async function loadInventoryData() {
   }
 }
 
-function renderInventoryHistory() {
+async function renderInventoryHistory() {
   const historyBody = document.getElementById('stockHistoryBody');
   if (!historyBody) return;
 
-  if (!inventoryItems.length) {
-    historyBody.innerHTML = '<tr><td colspan="5">No stock movement history available.</td></tr>';
-    return;
-  }
+  try {
+    const response = await window.ShopTrackApi.request('/api/stock-movements?limit=50');
+    const movements = response.movements || [];
+    
+    if (!movements.length) {
+      historyBody.innerHTML = '<tr><td colspan="5">No stock movement history available.</td></tr>';
+      return;
+    }
 
-  historyBody.innerHTML = inventoryItems
-    .map((item) => `
-      <tr>
-        <td>${new Date(item.updatedAt || Date.now()).toISOString().slice(0, 10)}</td>
-        <td>${item.productName}</td>
-        <td>${item.productStatus === 'Low Stock' ? 'Stock Alert' : 'Stock Check'}</td>
-        <td>${formatWholeNumber(item.stockQuantity)}</td>
-        <td>${item.productStatus}</td>
-      </tr>
-    `)
-    .join('');
+    historyBody.innerHTML = movements
+      .map((movement) => {
+        const typeClass = movement.movementType === 'STOCK_IN' ? 'green' : 
+                         movement.movementType === 'STOCK_OUT' ? 'red' : 'blue';
+        const typeLabel = movement.movementType === 'STOCK_IN' ? 'STOCK IN' :
+                         movement.movementType === 'STOCK_OUT' ? 'STOCK OUT' : 'ADJUSTMENT';
+        
+        return `
+          <tr>
+            <td>${new Date(movement.createdAt).toISOString().slice(0, 10)}</td>
+            <td>${movement.productName}</td>
+            <td><span class="status-badge ${typeClass}">${typeLabel}</span></td>
+            <td>${formatWholeNumber(movement.quantity)}</td>
+            <td>${movement.reason || '—'}</td>
+          </tr>
+        `;
+      })
+      .join('');
+  } catch (error) {
+    console.error('Failed to load stock movements:', error);
+    historyBody.innerHTML = '<tr><td colspan="5">Unable to load stock movement history.</td></tr>';
+  }
 }
 
 function renderInventoryTable() {

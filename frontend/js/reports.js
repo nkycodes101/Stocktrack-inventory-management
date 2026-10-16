@@ -1,6 +1,7 @@
 let reportRangeInvalid = false;
 let reportData = [];
 let reportSummary = { sales: 0, revenue: 0, profit: 0, inventoryValue: 0, lowStock: 0, outOfStock: 0, totalProducts: 0, inStock: 0 };
+let bestSellingProducts = [];
 
 function formatCurrency(value) {
   return new Intl.NumberFormat('en-NG', {
@@ -25,9 +26,12 @@ function showReportMessage(message, isError = true) {
   messageBox.style.display = message ? 'block' : 'none';
 }
 
-async function loadReports(period = 'month') {
+async function loadReports(period = 'month', fromDate = null, toDate = null) {
   try {
-    const response = await window.ShopTrackApi.request(`/api/reports?period=${encodeURIComponent(period)}&type=summary`);
+    let url = `/api/reports?period=${encodeURIComponent(period)}&type=summary`;
+    if (fromDate) url += `&from_date=${encodeURIComponent(fromDate)}`;
+    if (toDate) url += `&to_date=${encodeURIComponent(toDate)}`;
+    const response = await window.ShopTrackApi.request(url);
     reportData = response.data || [];
     reportSummary = response.summary || {
       sales: 0,
@@ -39,6 +43,7 @@ async function loadReports(period = 'month') {
       totalProducts: 0,
       inStock: 0,
     };
+    bestSellingProducts = response.bestSelling || [];
     renderReportView();
   } catch (error) {
     console.error(error);
@@ -78,7 +83,7 @@ function renderReportView() {
   updateSalesTrend(filteredData);
   updateProfitChart(filteredData);
   updateStatusList(filteredData);
-  updateProductList(filteredData);
+  updateProductList();
 }
 
 function updateSummaryCards(filteredData) {
@@ -171,28 +176,20 @@ function updateStatusList(filteredData) {
   if (outOfStockCountEl) outOfStockCountEl.textContent = `${Math.round((outOfStockCount / total) * 100)}%`;
 }
 
-function updateProductList(filteredData) {
-  const rows = document.querySelectorAll('.simple-list li');
-  if (!rows.length) return;
+function updateProductList() {
+  const list = document.querySelector('.simple-list');
+  if (!list) return;
 
-  const totals = filteredData.reduce((accumulator, record) => {
-    const products = record.productSales || {};
-    Object.entries(products).forEach(([name, value]) => {
-      accumulator[name] = (accumulator[name] || 0) + Number(value || 0);
-    });
-    return accumulator;
-  }, {});
+  if (!bestSellingProducts || bestSellingProducts.length === 0) {
+    list.innerHTML = '<li><span>No sales data available</span><strong>₦0</strong></li>';
+    return;
+  }
 
-  const sortedProducts = Object.entries(totals).sort((left, right) => right[1] - left[1]).slice(0, 4);
-
-  rows.forEach((row, index) => {
-    const product = sortedProducts[index];
-    if (!product) {
-      row.innerHTML = '<span>No products</span><strong>₦0</strong>';
-      return;
-    }
-
-    row.innerHTML = `<span>${product[0]}</span><strong>${formatCurrency(product[1])}</strong>`;
+  list.innerHTML = '';
+  bestSellingProducts.forEach((product) => {
+    const li = document.createElement('li');
+    li.innerHTML = `<span>${product.productName}</span><strong>Qty: ${product.quantitySold} | ${formatCurrency(product.revenue)}</strong>`;
+    list.appendChild(li);
   });
 }
 
@@ -212,39 +209,23 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 function renderReports() {
-  const filteredData = getFilteredReportData();
-  const hasData = filteredData.length > 0;
+  const fromInput = document.getElementById('reportFromDate');
+  const toInput = document.getElementById('reportToDate');
 
-  if (reportRangeInvalid) {
+  reportRangeInvalid = false;
+  const fromDate = fromInput ? getDateFromInput(fromInput.value) : null;
+  const toDate = toInput ? getDateFromInput(toInput.value) : null;
+
+  if (fromDate && toDate && fromDate > toDate) {
+    reportRangeInvalid = true;
+    showReportMessage('The From date cannot be later than the To date.', true);
     return;
   }
 
-  if (!hasData) {
-    const fromInput = document.getElementById('reportFromDate');
-    const toInput = document.getElementById('reportToDate');
-    const hasRangeSelected = (fromInput && fromInput.value) || (toInput && toInput.value);
+  const fromDateStr = fromDate ? fromDate.toISOString().split('T')[0] : null;
+  const toDateStr = toDate ? toDate.toISOString().split('T')[0] : null;
 
-    showReportMessage(
-      hasRangeSelected
-        ? 'No records found for the selected date range.'
-        : 'No report data is available for the selected period.',
-      true
-    );
-
-    updateSummaryCards([]);
-    updateSalesTrend([]);
-    updateProfitChart([]);
-    updateStatusList([]);
-    updateProductList([]);
-    return;
-  }
-
-  showReportMessage('', false);
-  updateSummaryCards(filteredData);
-  updateSalesTrend(filteredData);
-  updateProfitChart(filteredData);
-  updateStatusList(filteredData);
-  updateProductList(filteredData);
+  loadReports('all', fromDateStr, toDateStr);
 }
 
 function resetReportFilter() {
@@ -256,5 +237,5 @@ function resetReportFilter() {
   if (toInput) toInput.value = '';
 
   showReportMessage('', false);
-  renderReports();
+  loadReports('month');
 }

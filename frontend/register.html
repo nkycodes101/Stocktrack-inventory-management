@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ShopTrack | Create Account</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body class="login-page">
+    <div class="login-split">
+      <aside class="login-brand" aria-hidden="true">
+        <div class="login-brand-content">
+          <div class="login-brand-logo">ST</div>
+          <h1>Create Your<br /><span>ShopTrack Account</span></h1>
+          <p>Join thousands of business owners managing inventory, tracking sales, and growing their businesses with ShopTrack.</p>
+          <div class="login-illustration">
+            <div class="illustration-card">
+              <span class="illustration-icon">📦</span>
+              <strong>Products</strong>
+              <span>Manage catalog</span>
+            </div>
+            <div class="illustration-card">
+              <span class="illustration-icon">📊</span>
+              <strong>Inventory</strong>
+              <span>Real-time stock</span>
+            </div>
+            <div class="illustration-card">
+              <span class="illustration-icon">💰</span>
+              <strong>Sales</strong>
+              <span>Track revenue</span>
+            </div>
+            <div class="illustration-card">
+              <span class="illustration-icon">📈</span>
+              <strong>Reports</strong>
+              <span>Smart insights</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <main class="login-form-side">
+        <section class="login-form-shell" aria-labelledby="register-title">
+          <div class="login-form-header">
+            <div class="logo-badge" aria-hidden="true">ST</div>
+            <h1 id="register-title">Create Account</h1>
+            <p>Enter your business details to get started</p>
+          </div>
+
+          <form id="registerForm" novalidate>
+            <div class="field-group">
+              <label for="businessName">Business Name</label>
+              <input
+                type="text"
+                id="businessName"
+                name="businessName"
+                placeholder="Your business name"
+                autocomplete="organization"
+                required
+                aria-describedby="businessNameError"
+              />
+            </div>
+
+            <div class="field-group">
+              <label for="ownerName">Owner's Full Name</label>
+              <input
+                type="text"
+                id="ownerName"
+                name="ownerName"
+                placeholder="Your full name"
+                autocomplete="name"
+                required
+                aria-describedby="ownerNameError"
+              />
+            </div>
+
+            <div class="field-group">
+              <label for="email">Email address</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="you@business.com"
+                autocomplete="email"
+                required
+                aria-describedby="emailError"
+              />
+            </div>
+
+            <div class="field-group">
+              <label for="phone">Phone Number (optional)</label>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                placeholder="+234 8XX XXX XXXX"
+                autocomplete="tel"
+                aria-describedby="phoneError"
+              />
+            </div>
+
+            <div class="field-group">
+              <label for="password">Password</label>
+              <div class="password-wrapper">
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  placeholder="At least 8 characters"
+                  autocomplete="new-password"
+                  required
+                  aria-describedby="passwordError"
+                />
+                <button
+                  type="button"
+                  class="toggle-password"
+                  id="togglePassword"
+                  aria-label="Show password"
+                >
+                  Show
+                </button>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label for="confirmPassword">Confirm Password</label>
+              <div class="password-wrapper">
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  placeholder="Confirm your password"
+                  autocomplete="new-password"
+                  required
+                  aria-describedby="confirmPasswordError"
+                />
+                <button
+                  type="button"
+                  class="toggle-password"
+                  id="toggleConfirmPassword"
+                  aria-label="Show password"
+                >
+                  Show
+                </button>
+              </div>
+            </div>
+
+            <div id="formMessage" class="form-message" aria-live="polite"></div>
+
+            <button type="submit" class="primary-btn">Create Account</button>
+
+            <p class="signup-text">
+              Already have an account? <a href="login.html" class="text-link">Back to Login</a>
+            </p>
+          </form>
+        </section>
+      </main>
+    </div>
+
+    <script src="js/auth.js"></script>
+  </body>
+</html>

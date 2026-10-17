@@ -1,5 +1,6 @@
 import os
 import sys
+import bcrypt
 
 from flask import Flask, jsonify, request
 
@@ -439,6 +440,37 @@ def ensure_sales_tables():
                     reference_type VARCHAR(50),
                     reference_id INTEGER,
                     created_at TIMESTAMPTZ DEFAULT NOW()
+                )
+                """
+            )
+            cursor.execute(
+                """
+                CREATE TABLE IF NOT EXISTS workspaces (
+                    workspace_id SERIAL PRIMARY KEY,
+                    business_name VARCHAR(200) NOT NULL,
+                    owner_name VARCHAR(150) NOT NULL,
+                    email VARCHAR(255) UNIQUE NOT NULL,
+                    phone VARCHAR(50),
+                    address TEXT,
+                    is_active BOOLEAN DEFAULT TRUE,
+                    created_at TIMESTAMPTZ DEFAULT NOW(),
+                    updated_at TIMESTAMPTZ DEFAULT NOW()
+                )
+                """
+            )
+            cursor.execute(
+                """
+                CREATE TABLE IF NOT EXISTS users (
+                    user_id SERIAL PRIMARY KEY,
+                    workspace_id INTEGER NOT NULL REFERENCES workspaces(workspace_id) ON DELETE CASCADE,
+                    email VARCHAR(255) UNIQUE NOT NULL,
+                    password_hash VARCHAR(255) NOT NULL,
+                    full_name VARCHAR(150) NOT NULL,
+                    role VARCHAR(50) NOT NULL DEFAULT 'owner' CHECK (role IN ('owner', 'admin', 'staff')),
+                    is_active BOOLEAN DEFAULT TRUE,
+                    last_login TIMESTAMPTZ,
+                    created_at TIMESTAMPTZ DEFAULT NOW(),
+                    updated_at TIMESTAMPTZ DEFAULT NOW()
                 )
                 """
             )
@@ -2356,6 +2388,145 @@ def save_settings():
         'showExpiryReminders': show_expiry_reminders,
         'message': 'Settings saved successfully'
     }), 201
+
+
+@app.post('/api/auth/register')
+def register():
+    payload = request.get_json(silent=True) or {}
+    if not isinstance(payload, dict):
+        return jsonify({'error': 'Request body must be a JSON object.'}), 400
+
+    business_name = str(payload.get('businessName', '')).strip()
+    owner_name = str(payload.get('ownerName', '')).strip()
+    email = str(payload.get('email', '')).strip().lower()
+    phone = str(payload.get('phone', '')).strip()
+    password = payload.get('password', '')
+    confirm_password = payload.get('confirmPassword', '')
+
+    if not business_name:
+        return jsonify({'error': 'Business name is required.'}), 400
+    if not owner_name:
+        return jsonify({'error': "Owner's full name is required."}), 400
+    if not email:
+        return jsonify({'error': 'Email is required.'}), 400
+    if not password:
+        return jsonify({'error': 'Password is required.'}), 400
+    if password != confirm_password:
+        return jsonify({'error': 'Passwords do not match.'}), 400
+    if len(password) < 8:
+        return jsonify({'error': 'Password must be at least 8 characters.'}), 400
+
+    email_pattern = r'^[^\s@]+@[^\s@]+\.[^\s@]+$'
+    import re
+    if not re.match(email_pattern, email):
+        return jsonify({'error': 'Invalid email format.'}), 400
+
+    try:
+        with get_db_connection() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute('SELECT workspace_id FROM workspaces WHERE email = %s', (email,))
+                if cursor.fetchone():
+                    return jsonify({'error': 'An account with this email already exists.'}), 409
+
+                cursor.execute('SELECT user_id FROM users WHERE email = %s', (email,))
+                if cursor.fetchone():
+                    return jsonify({'error': 'An account with this email already exists.'}), 409
+
+                password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
+                cursor.execute(
+                    """
+                    INSERT INTO workspaces (business_name, owner_name, email, phone, address)
+                    VALUES (%s, %s, %s, %s, %s)
+                    RETURNING workspace_id
+                    """,
+                    (business_name, owner_name, email, phone or None, None),
+                )
+                workspace_id = cursor.fetchone()[0]
+
+                cursor.execute(
+                    """
+                    INSERT INTO users (workspace_id, email, password_hash, full_name, role)
+                    VALUES (%s, %s, %s, %s, 'owner')
+                    RETURNING user_id
+                    """,
+                    (workspace_id, email, password_hash, owner_name),
+                )
+                user_id = cursor.fetchone()[0]
+
+                cursor.execute(
+                    """
+                    INSERT INTO settings (business_name, currency, enable_low_stock_alerts, auto_save_sales_history, show_expiry_reminders)
+                    VALUES (%s, 'NGN', TRUE, TRUE, TRUE)
+                    """,
+                    (business_name,),
+                )
+
+                connection.commit()
+
+        return jsonify({
+            'message': 'Account created successfully. Please log in.',
+            'userId': user_id,
+            'workspaceId': workspace_id
+        }), 201
+    except Exception as exc:
+        return jsonify({'error': f'Registration failed: {str(exc)}'}), 500
+
+
+@app.post('/api/auth/login')
+def login():
+    payload = request.get_json(silent=True) or {}
+    if not isinstance(payload, dict):
+        return jsonify({'error': 'Request body must be a JSON object.'}), 400
+
+    email = str(payload.get('email', '')).strip().lower()
+    password = payload.get('password', '')
+
+    if not email or not password:
+        return jsonify({'error': 'Email and password are required.'}), 400
+
+    try:
+        with get_db_connection() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    SELECT u.user_id, u.workspace_id, u.email, u.password_hash, u.full_name, u.role,
+                           w.business_name
+                    FROM users u
+                    JOIN workspaces w ON w.workspace_id = u.workspace_id
+                    WHERE u.email = %s AND u.is_active = TRUE AND w.is_active = TRUE
+                    """,
+                    (email,),
+                )
+                row = cursor.fetchone()
+
+                if not row:
+                    return jsonify({'error': 'Invalid email or password.'}), 401
+
+                user_id, workspace_id, user_email, password_hash, full_name, role, business_name = row
+
+                if not bcrypt.checkpw(password.encode('utf-8'), password_hash.encode('utf-8')):
+                    return jsonify({'error': 'Invalid email or password.'}), 401
+
+                cursor.execute(
+                    'UPDATE users SET last_login = NOW() WHERE user_id = %s',
+                    (user_id,),
+                )
+                connection.commit()
+
+        return jsonify({
+            'message': 'Login successful',
+            'user': {
+                'userId': user_id,
+                'workspaceId': workspace_id,
+                'email': user_email,
+                'fullName': full_name,
+                'role': role,
+                'businessName': business_name
+            }
+        }), 200
+    except Exception as exc:
+        return jsonify({'error': f'Login failed: {str(exc)}'}), 500
 
 
 if __name__ == '__main__':
